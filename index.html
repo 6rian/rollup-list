@@ -11,7 +11,6 @@
       <li>Some Tag</li>
       <li>Another One</li>
       <li>A Longer Tag</li>
-      <li>+5</li>
       <li>Whatever</li>
       <li>Yet Another Value</li>
       <li>How many more?</li>
@@ -66,6 +65,20 @@
       const {width, padding} = dimensions;
       return Math.round(parseFloat(width)) - Math.round(parseFloat(padding.left)) - Math.round(parseFloat(padding.right));
     }
+
+    function resetOrder(list) {
+      let order = 0;
+      const items = Array.from(list.querySelectorAll('li'));
+      items.forEach(item => {
+        item.style.order = order;
+        order++;
+      });      
+    }
+
+    function setSummaryOrder(order) {
+      const summary = document.querySelector(`.${SUMMARY_CLASS}`);
+      summary.style.order = order - 1;
+    }
     
  
     
@@ -104,6 +117,10 @@
       }
       currentItem++;
     }
+
+    // now redorder the list
+    resetOrder(parent);
+    setSummaryOrder(rollupList.length);
     
     console.log(rollupList, width, maxWidth);
 

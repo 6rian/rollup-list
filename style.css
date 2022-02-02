@@ -24,10 +24,11 @@ body {
 	background: lightblue;
 	margin: 0;
 	padding: 1rem;
+  /* overflow: hidden; */
 }
 
 .tags-list li {
 	background: green;
-  flex-shrink: 0;
+  flex-shrink: 0; 
   /* visibility: hidden; */
 }
