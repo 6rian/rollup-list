@@ -53,11 +53,11 @@
       // max usable width = width - PL - PR
       return {
         padding: {
-          left: getRenderedStyle(parent, 'padding-left'),
-          right: getRenderedStyle(parent, 'padding-right')
+          left: getRenderedStyle(element, 'padding-left'),
+          right: getRenderedStyle(element, 'padding-right')
         },
-        width: getRenderedStyle(parent, 'width'),
-        gap: getRenderedStyle(parent, 'column-gap')
+        width: getRenderedStyle(element, 'width'),
+        gap: getRenderedStyle(element, 'column-gap')
       };
     }
 
@@ -80,51 +80,53 @@
       summary.style.order = order - 1;
     }
     
- 
-    
-    const parent = document.querySelector('.tags-list');
-    const parentDimensions = getContainerDimensions(parent);
-    //const widths = Array.from(parent.children).map(child => getRenderedStyle(child, 'width'));
-    console.table(parentDimensions);
-    writeSummary(parent);
-
-    const maxWidth = calcMaxTotalWidthFromDimensions(parentDimensions);
-    console.log('maxWidth', maxWidth);
-
-
-
+     
     // BUILD ROLLUP LIST
-    const rollupList = [];
-    const items = Array.from(parent.children);
-    // starting width accounts for right padding we want to maintain
-    let width = Math.round(parseFloat(parentDimensions.padding.right));
+    function buildRollupList() {
+      const parent = document.querySelector('.tags-list');
+      const parentDimensions = getContainerDimensions(parent);
+      //const widths = Array.from(parent.children).map(child => getRenderedStyle(child, 'width'));
+      console.table(parentDimensions);
+      writeSummary(parent);
+  
+      const maxWidth = calcMaxTotalWidthFromDimensions(parentDimensions);
+      console.log('maxWidth', maxWidth);
 
-    
-    let currentItem = 0;
-    while (width < maxWidth && currentItem < items.length) {
-      const gap = Math.round(parseFloat(parentDimensions.gap));
-      const summaryWidth = getSummaryWidth();
-      const itemWidth = Math.round(parseFloat(getRenderedStyle(items[currentItem], 'width')));
-      // TODO: also account for right padding
-      const potentialWidth = width + itemWidth + gap + summaryWidth;
-
-      console.log({currentItem, itemWidth, width, potentialWidth});
-
-      if (potentialWidth < maxWidth) {
-        rollupList.push(items[currentItem]);
-        // for each item added, we also have a gap
-        width += itemWidth + gap;
+      const rollupList = [];
+      const items = Array.from(parent.children);
+      // starting width accounts for right padding we want to maintain
+      let width = Math.round(parseFloat(parentDimensions.padding.right));
+  
+      
+      let currentItem = 0;
+      while (width < maxWidth && currentItem < items.length) {
+        const gap = Math.round(parseFloat(parentDimensions.gap));
+        const summaryWidth = getSummaryWidth();
+        const itemWidth = Math.round(parseFloat(getRenderedStyle(items[currentItem], 'width')));
+        // TODO: also account for right padding
+        const potentialWidth = width + itemWidth + gap + summaryWidth;
+  
+        console.log({currentItem, itemWidth, width, potentialWidth});
+  
+        if (potentialWidth < maxWidth) {
+          rollupList.push(items[currentItem]);
+          // for each item added, we also have a gap
+          width += itemWidth + gap;
+        }
+        currentItem++;
       }
-      currentItem++;
+  
+      // update summary count and redorder the list
+      const summaryCount = items.length - rollupList.length - 1;
+      writeSummary(parent, summaryCount);
+      resetOrder(parent);
+      setSummaryOrder(rollupList.length);
     }
 
-    // update summary count and redorder the list
-    const summaryCount = items.length - rollupList.length - 1;
-    writeSummary(parent, summaryCount);
-    resetOrder(parent);
-    setSummaryOrder(rollupList.length);
+    buildRollupList();
+    window.addEventListener('resize', buildRollupList);
     
-    console.log(rollupList, width, maxWidth);
+    //console.log(rollupList, width, maxWidth);
 
     // TODO:
     // - init:
