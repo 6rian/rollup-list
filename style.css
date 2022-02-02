@@ -1,0 +1,33 @@
+body {
+	background: #aaa;
+}
+
+:root {
+	--max-width: 300px;
+	--gap: 0.5rem;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.container {
+	width: var(--max-width);
+	border: 1px solid red;
+}
+
+.tags-list {
+	display: flex;
+	flex-direction: row;
+	list-style: none;
+	gap: var(--gap);
+	background: lightblue;
+	margin: 0;
+	padding: 1rem;
+}
+
+.tags-list li {
+	background: green;
+  flex-shrink: 0;
+  /* visibility: hidden; */
+}

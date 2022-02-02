@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <ul class="tags-list">
+      <li>Some Tag</li>
+      <li>Another One</li>
+      <li>A Longer Tag</li>
+      <li>+5</li>
+      <li>Whatever</li>
+      <li>Yet Another Value</li>
+      <li>How many more?</li>
+    </ul>
+  </div>
+
+  <script>
+    // Terms:
+    // - shadow list == the original. shadow because it's hidden.
+    // - rollup list == the visible, condensed list with summary.
+
+    const SUMMARY_CLASS = 'summary'; // TODO: namespace this? depends on how I package things up..
+
+    function getRenderedStyle (element, property) {
+      const renderedElement = window.getComputedStyle(element);
+      return renderedElement.getPropertyValue(property);
+    }
+    
+    function writeSummary (listEl, count) {
+      count = count ? count : listEl.children.length - 1;
+      let summary = document.querySelector(`.${SUMMARY_CLASS}`);
+      if (!summary) {
+        summary = document.createElement('li');
+        summary.classList.add(SUMMARY_CLASS);
+        // TODO -- append to cloned list, not original
+        listEl.append(summary);
+      }
+      summary.innerText = `+ ${count}`;
+    }
+
+    function getSummaryWidth() {
+      const summary = document.querySelector(`.${SUMMARY_CLASS}`);
+      if (summary) {
+        return Math.round(parseFloat(getRenderedStyle(summary, 'width')));
+      }
+      return 0;
+    }
+    
+    function getContainerDimensions (element) {
+      // max usable width = width - PL - PR
+      return {
+        padding: {
+          left: getRenderedStyle(parent, 'padding-left'),
+          right: getRenderedStyle(parent, 'padding-right')
+        },
+        width: getRenderedStyle(parent, 'width'),
+        gap: getRenderedStyle(parent, 'column-gap')
+      };
+    }
+
+    function calcMaxTotalWidthFromDimensions (dimensions) {
+      const {width, padding} = dimensions;
+      return Math.round(parseFloat(width)) - Math.round(parseFloat(padding.left)) - Math.round(parseFloat(padding.right));
+    }
+    
+ 
+    
+    const parent = document.querySelector('.tags-list');
+    const parentDimensions = getContainerDimensions(parent);
+    //const widths = Array.from(parent.children).map(child => getRenderedStyle(child, 'width'));
+    console.table(parentDimensions);
+    writeSummary(parent);
+
+    const maxWidth = calcMaxTotalWidthFromDimensions(parentDimensions);
+    console.log('maxWidth', maxWidth);
+
+
+
+    // BUILD ROLLUP LIST
+    const rollupList = [];
+    const items = Array.from(parent.children);
+    // starting width accounts for right padding we want to maintain
+    let width = Math.round(parseFloat(parentDimensions.padding.right));
+
+    
+    let currentItem = 0;
+    while (width < maxWidth && currentItem < items.length) {
+      const gap = Math.round(parseFloat(parentDimensions.gap));
+      const summaryWidth = getSummaryWidth();
+      const itemWidth = Math.round(parseFloat(getRenderedStyle(items[currentItem], 'width')));
+      // TODO: also account for right padding
+      const potentialWidth = width + itemWidth + gap + summaryWidth;
+
+      console.log({currentItem, itemWidth, width, potentialWidth});
+
+      if (potentialWidth < maxWidth) {
+        rollupList.push(items[currentItem]);
+        // for each item added, we also have a gap
+        width += itemWidth + gap;
+      }
+      currentItem++;
+    }
+    
+    console.log(rollupList, width, maxWidth);
+
+    // TODO:
+    // - init:
+    //    - check if original list is visible, and hide if not
+    //    - call render/main once
+    //    - add event listener for window.onresize to execute main
+
+  </script>
+</body>
+</html>
