@@ -118,7 +118,9 @@
       currentItem++;
     }
 
-    // now redorder the list
+    // update summary count and redorder the list
+    const summaryCount = items.length - rollupList.length - 1;
+    writeSummary(parent, summaryCount);
     resetOrder(parent);
     setSummaryOrder(rollupList.length);
     
